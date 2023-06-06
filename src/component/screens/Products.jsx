@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
 
@@ -9,7 +9,10 @@ const URL = "https://dummyjson.com"
 function Products() {
     const [products,setProducts] = useState([])
     const params = useParams()
+    const navigate = useNavigate()
+
     console.log('params=',params)
+
 
     const  getProducts = async () => {
         await axios.get(`${URL}/products/category/${params.cName}`)
@@ -24,6 +27,18 @@ function Products() {
         getProducts()
     },[])
 
+    const deleteHandler = async (id) => {
+        if(window.confirm(`Are you sure tp delete product id = ${id} ?`)){
+            await axios.get(`${URL}/products/${id}`)
+            .then(res => {
+                toast.success(`product id ${id}deleted successfully`)
+                navigate('/')
+            }) .catch(err => toast.error(err.message))
+        } else{
+            toast.warning('Delete terminated')
+        }
+  
+    }
 
     return(
         <div className="container">
@@ -54,7 +69,7 @@ function Products() {
                                     <NavLink to={`/update/${id}`} className="btn btn-sm btn-info">
                                         <i className="bi bi-pencil"></i>
                                     </NavLink>
-                                    <button className="btn btn-sm btn-danger float-end">
+                                    <button onClick={() => deleteHandler(id) } className="btn btn-sm btn-danger float-end">
                                     <i className="bi bi-trash"></i>
                                     </button>
                                 </div>
